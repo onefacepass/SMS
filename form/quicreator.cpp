@@ -94,6 +94,10 @@ void QUICreator::initCamera()
 
 //    connect(videoDevicesGroup, &QActionGroup::triggered, this, &QUICreator::updateCamera);
 
+    if (QCameraInfo::defaultCamera().isNull()) {
+        QUIWidget::showMessageBoxError("没有检测到摄像头");
+        close();
+    }
     // 使用默认摄像头
     setCamera(QCameraInfo::defaultCamera());
 
@@ -215,8 +219,8 @@ void QUICreator::faceDetectFinished(QVector<Student> res)
 #endif
 
     if (res.size() == 1) {
-//        if (!res[0].identifiable)
-//            btnRedetectClicked();
+        if (!res[0].identifiable)
+            btnRedetectClicked();
         ui->lineEditId->setText(res[0].id);
 
         tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].id))));

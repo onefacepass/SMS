@@ -1026,7 +1026,7 @@ void QUIWidget::showMessageBoxInfo(const QString &info, int closeSec)
 void QUIWidget::showMessageBoxError(const QString &info, int closeSec)
 {
     QUIMessageBox::Instance()->setMessage(info, 2, closeSec);
-    QUIMessageBox::Instance()->show();
+    QUIMessageBox::Instance()->exec();
 }
 
 void QUIWidget::ShowMessageBoxErrorAndExit(const QString &info, int closeSec)
