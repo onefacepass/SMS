@@ -12,6 +12,21 @@ FaceThread::FaceThread(const QString& photoPath)
     facedete->SetConfLevel(static_cast<MFloat>(0.8));
 
     std::string errmsg;
+
+    switch(facedete->Loadregface(errmsg)) {
+    case -1:
+        qDebug() << "路径错误";
+        break;
+    case -2:
+        qDebug() << "json文件不存在";
+        break;
+    case -3:
+        qDebug() << "json文件读取错误，可能是json格式不规范";
+        break;
+    default:
+        qDebug() << "Loadregface 正常";
+    }
+
     if (facedete->Loadregface(errmsg) < 0) {
         // FIXME: 没做完整的处理，出现问题记得检查
         qDebug() << "\033[31m" << "FaceThread | facedete->Loadregface() < 0" << "\033[0m";
@@ -90,6 +105,10 @@ void FaceThread::run()
                     QString major(currRes["major"].asString().data());
                     bool identifiable = currRes["identifiable"].asBool();
                     QString path(currRes["pathInPreload"].asString().data());
+                    QString grade(currRes["grade"].asString().data());
+                    QString contack_number(currRes["contact_number"].asString().data());
+                    QString contack_add(currRes["contact_add"].asString().data());
+                    QString gender(currRes["gender"].asString().data());
 
                     // 检测模式下返回完整的人脸识别信息
                     resultComplete.push_back({identifiable,
@@ -98,7 +117,11 @@ void FaceThread::run()
                                               major,
                                               QRect(currRes["rect"][0].asInt(), currRes["rect"][1].asInt(),
                                                     currRes["rect"][2].asInt()-currRes["rect"][0].asInt(), currRes["rect"][3].asInt()-currRes["rect"][1].asInt()),
-                                              path});
+                                              path,
+                                              grade,
+                                              contack_number,
+                                              contack_add,
+                                              gender});
                 } else {    //--- 仅人脸跟踪
                     // 跟踪模式下只返回人脸位置
                     resultOnlyTrack.push_back(QRect(currRes["rect"][0].asInt(), currRes["rect"][1].asInt(),
@@ -125,6 +148,12 @@ void FaceThread::run()
         }
 
     }
+
+    tasks.clear();
+    detectedResult.clear();
+    resultComplete.clear();
+    resultOnlyTrack.clear();
+
 }
 
 void FaceThread::ReceiveImg(bool _detect, const QImage& image)

@@ -28,7 +28,7 @@ void MainWindow::initTableWidgetInfo()
 //    ui->tableWidgetInfo->setColumnWidth(2, width * 0.10);
 
     QStringList headText;
-    headText << "学号" << "姓名" << "专业" << "性别" << "班级" << "联系方式" << "联系地址";
+    headText << "学号" << "姓名" << "专业" << "班级" << "联系方式" << "联系地址" << "性别";
     ui->tableWidgetInfo->setVerticalHeaderLabels(headText);
 
     ui->tableWidgetInfo->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -58,6 +58,7 @@ void MainWindow::initTableWidgetSchedule()
 
 void MainWindow::updateTableWidgetInfo(QVector<std::shared_ptr<QTableWidgetItem>> items)
 {
+    qDebug() << items.size();
     for (int i = 0; i < items.size(); ++i) {
         ui->tableWidgetInfo->setItem(i, 0, items[i].get());
     }

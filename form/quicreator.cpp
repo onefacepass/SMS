@@ -200,7 +200,13 @@ void QUICreator::faceDetectFinished(QVector<Student> res)
 {
 #ifdef DEBUG
     for(auto r : res) {
-        qDebug() << r.identifiable << r.id << "\t" << r.name << "\t" << r.major;
+        qDebug() << r.identifiable << r.id
+                 << "\t" << r.name
+                 << "\t" << r.major
+                 << "\t" << r.grade
+                 << "\t" << r.gender
+                 << "\t" << r.contack_number
+                 << "\t" << r.contack_add;
     }
 #endif
 
@@ -209,25 +215,31 @@ void QUICreator::faceDetectFinished(QVector<Student> res)
         if (!res[0].identifiable)
             return;
 
-        // 停止人脸识别线程
+        // 停止人脸识别
         captureThread->requestInterruption();
         faceThread->requestInterruption();
         // 停止摄像头
         camera->stop();
+
         ui->labStatus->setText("识别成功！");
 
         tableWidgetItems.clear();
 
+
+        // TODO: 这里暴力了，后面再说
         tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].id))));
         tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].name))));
         tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].major))));
+        tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].grade))));
+        tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].contack_number))));
+        tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].contack_add))));
+        tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].gender))));
 
         login();
     }
     // 多个识别结果
     else {
         ui->labStatus->setText("检测到多人！");
-        QUIWidget::showMessageBoxInfo("检测到多人！", 5);
     }
 }
 
