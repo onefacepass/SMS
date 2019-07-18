@@ -17,6 +17,10 @@ typedef struct t_student {
     QString major;
     QRect faceRect;
     QString path;
+    QString grade;
+    QString contack_number;
+    QString contack_add;
+    QString gender;
 } Student;
 
 
