@@ -225,7 +225,8 @@ void QUICreator::faceDetectFinished(QVector<Student> res)
     }
     // 多个识别结果
     else {
-        ui->labStatus->setText("检测到多人！");
+        QUIWidget::showMessageBoxInfo("检测到多人", 5);
+//        ui->labStatus->setText("检测到多人！");
     }
 }
 
