@@ -39,11 +39,8 @@ void QUICreator::initForm()
 
     initStyle();
 
-    connect(ui->btnRedetect, &QPushButton::clicked, this, &QUICreator::btnRedetectClicked);
-    connect(ui->btnLogin, &QPushButton::clicked, this, &QUICreator::btnLoginClicked);
-
-    ui->btnRedetect->setEnabled(false);
 }
+
 /*
  * @func: 初始化负责人脸识别的进程
  */
@@ -55,8 +52,6 @@ void QUICreator::initFace()
     faceThread = new FaceThread(QDir::toNativeSeparators(config->value("FaceDetect/preload").toString()));
     connect(faceThread, &FaceThread::DetectFinished, this, &QUICreator::faceDetectFinished);
     connect(faceThread, &FaceThread::TrackFinished, this, &QUICreator::faceTrackFinished);
-    connect(faceThread, &FaceThread::DetectFinishedWithoutResult, this, &QUICreator::faceDetectFinishedWithoutResult);
-    connect(faceThread, &FaceThread::TrackFinishedWithoutResult, this, &QUICreator::faceTrackFinishedWithoutResult);
 
     faceThread->start();
 }
@@ -94,6 +89,10 @@ void QUICreator::initCamera()
 
 //    connect(videoDevicesGroup, &QActionGroup::triggered, this, &QUICreator::updateCamera);
 
+    if (QCameraInfo::defaultCamera().isNull()) {
+        QUIWidget::showMessageBoxError("没有检测到摄像头");
+        close();
+    }
     // 使用默认摄像头
     setCamera(QCameraInfo::defaultCamera());
 
@@ -199,71 +198,55 @@ void QUICreator::faceTrackFinished(QVector<QRect> res)
  */
 void QUICreator::faceDetectFinished(QVector<Student> res)
 {
-    // 停止人脸识别线程
-    faceThread->requestInterruption();
-    // 停止摄像头
-    camera->stop();
-    // 启用“重新识别”按钮
-    ui->btnRedetect->setEnabled(true);
-
-    tableWidgetItems.clear();
-
 #ifdef DEBUG
     for(auto r : res) {
         qDebug() << r.identifiable << r.id << "\t" << r.name << "\t" << r.major;
     }
 #endif
 
+    // 只有一个识别结果
     if (res.size() == 1) {
-//        if (!res[0].identifiable)
-//            btnRedetectClicked();
-        ui->lineEditId->setText(res[0].id);
+        if (!res[0].identifiable)
+            return;
+
+        // 停止人脸识别线程
+        faceThread->requestInterruption();
+        // 停止摄像头
+        camera->stop();
+        ui->labStatus->setText("识别成功！");
+
+        tableWidgetItems.clear();
 
         tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].id))));
         tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].name))));
         tableWidgetItems.push_back(shared_ptr<QTableWidgetItem>(new QTableWidgetItem(QString(res[0].major))));
 
-    } else {
-        qDebug() << "多个识别结果！";
+        login();
     }
-
-
-}
-
-/*
- * @func: 点击“重新识别”按钮后重启人脸识别线程和摄像头
- */
-void QUICreator::btnRedetectClicked()
-{
-    faceThread->start();
-    camera->start();
-
-    ui->btnRedetect->setEnabled(false);
+    // 多个识别结果
+    else {
+        ui->labStatus->setText("检测到多人！");
+    }
 }
 
 /*
  * @func: 执行登陆操作
  */
-void QUICreator::btnLoginClicked()
+void QUICreator::login()
 {
     if (!this->qui) {
         qDebug() << "Error: this->qui == nullptr";
     } else {
+        QString info = "欢迎您，来自" + tableWidgetItems[2]->text() + "专业的" + tableWidgetItems[1]->text() + "！";
+        QUIWidget::showMessageBoxInfo(info, 3);
+
+
         MainWindow* mw = new MainWindow();
         qui->setMainWidget(mw);
 
         mw->updateTableWidgetInfo(tableWidgetItems);
 
     }
-
-}
-
-void QUICreator::faceTrackFinishedWithoutResult()
-{
-}
-
-void QUICreator::faceDetectFinishedWithoutResult()
-{
 }
 
 /*
@@ -274,6 +257,8 @@ void QUICreator::faceDetectFinishedWithoutResult()
 void QUICreator::processCapturedImage(int requestId, const QImage& _img)
 {
     Q_UNUSED(requestId)
+
+    ui->labStatus->setText("正在识别...");
 
     this->img_tmp = _img;
 }
