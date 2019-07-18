@@ -22,6 +22,7 @@ private:
     Ui::MainWindow *ui;
 
     void initTableWidgetInfo();
+    void initTableWidgetSchedule();
 
 };
 

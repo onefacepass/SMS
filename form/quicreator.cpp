@@ -40,6 +40,7 @@ void QUICreator::initForm()
     initStyle();
 
 }
+
 /*
  * @func: 初始化负责人脸识别的进程
  */
