@@ -67,7 +67,6 @@ private slots:
     void initCamera();
     void initFace();
 
-    void setStyle(const QString &str);
     void takeImage();
     void processCapturedImage(int requestId, const QImage& img);
     void doDetect();
@@ -78,16 +77,15 @@ private slots:
     void displayCameraError();
 
     void initStyle();
+    void setStyle(const QString &str);
     void about();
+
 
     // 处理face线程发出的信号
     void faceDetectFinished(QVector<Student> res);
     void faceTrackFinished(QVector<QRect> res);
-    void faceDetectFinishedWithoutResult();
-    void faceTrackFinishedWithoutResult();
 
-    void btnRedetectClicked();
-    void btnLoginClicked();
+    void login();
 };
 
 #endif // QUICREATOR_H
