@@ -13,7 +13,7 @@ CaptureThread::CaptureThread() : QThread ()
 void CaptureThread::run()
 {
     int i = 0;
-    while (true) {
+    while (!isInterruptionRequested()) {
         // 注意：截图的信号要在Track和Detect两个信号之前发出！
         emit CaptureNotice();
 #ifdef DEBUG_THREAD

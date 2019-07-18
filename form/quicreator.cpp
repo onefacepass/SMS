@@ -210,6 +210,7 @@ void QUICreator::faceDetectFinished(QVector<Student> res)
             return;
 
         // 停止人脸识别线程
+        captureThread->requestInterruption();
         faceThread->requestInterruption();
         // 停止摄像头
         camera->stop();
@@ -226,6 +227,7 @@ void QUICreator::faceDetectFinished(QVector<Student> res)
     // 多个识别结果
     else {
         ui->labStatus->setText("检测到多人！");
+        QUIWidget::showMessageBoxInfo("检测到多人！", 5);
     }
 }
 
